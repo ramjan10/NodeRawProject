@@ -4,6 +4,7 @@
 
 // dependences
 const http = require('http');
+const {handleRequest} = require('./helpers/handleReqRes');
 
 // create an scafolding opject
 const app = {};
@@ -22,8 +23,6 @@ app.createServer = () => {
 };
 
 // create handle request response
-app.handleRequest = (req, res) => {
-    res.end('hellow programer ?? what time now');
-};
+app.handleRequest = handleRequest
 
 app.createServer();
