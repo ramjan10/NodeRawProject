@@ -4,25 +4,21 @@
 
 // dependences
 const http = require('http');
-const {handleRequest} = require('./helpers/handleReqRes');
+const { handleRequest } = require('./helpers/handleReqRes');
+const environment = require('./helpers/environments');
 
 // create an scafolding opject
 const app = {};
 
-// all configuration
-app.config = {
-    port: 3000,
-};
-
 // create server
 app.createServer = () => {
     const server = http.createServer(app.handleRequest);
-    server.listen(app.config.port, () => {
-        console.log(`Listening prot  ${app.config.port}`);
+    server.listen(environment.port, () => {
+        console.log(`Listening prot  ${environment.port}`);
     });
 };
 
 // create handle request response
-app.handleRequest = handleRequest
+app.handleRequest = handleRequest;
 
 app.createServer();
