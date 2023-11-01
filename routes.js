@@ -2,15 +2,15 @@
  * route file
  */
 
+// dependeces
+const { sampleHandler } = require('./handlers/routeHandalers/sampleHandler');
+const { userHandler } = require('./handlers/routeHandalers/userHandler');
 
-
-//dependeces
-const {sampleHandler} = require('./handlers/routeHandalers/sampleHandler');
-
-//safolding
+// safolding
 
 const routes = {
     sample: sampleHandler,
-}
+    user: userHandler,
+};
 
 module.exports = routes;

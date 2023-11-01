@@ -2,17 +2,15 @@
  * sampale hander
  */
 
-//dependences
+// dependences
+// scafolding
+const handler = {};
 
-
-//scafolding
-const handler = {}
-
-handler.sampleHandler = (requestProperties, callback) =>{
-    console.log(requestProperties)
+handler.sampleHandler = (requestProperties, callback) => {
+    console.log(requestProperties);
     callback(200, {
-        message: 'this is sample url'
-    })
-}
+        message: 'this is sample url',
+    });
+};
 
 module.exports = handler;
