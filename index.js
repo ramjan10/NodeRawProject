@@ -4,11 +4,16 @@
 
 // dependences
 const http = require('http');
+const data = require('./lib/data');
 const { handleRequest } = require('./helpers/handleReqRes');
 const environment = require('./helpers/environments');
 
 // create an scafolding opject
 const app = {};
+
+// data.create('test', 'newfile', { name: 'Ramjan', email: 'ramjan@gmail.com' }, (err) => {
+//     console.log(err);
+// });
 
 // create server
 app.createServer = () => {
