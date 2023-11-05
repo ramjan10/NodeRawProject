@@ -7,6 +7,7 @@ const data  = require('../../lib/data');
 const {hash} = require("../../helpers/utilities");
 const { has } = require('lodash');
 const {parseJSON} = require('../../helpers/utilities');
+const tokenHandler =  require('./tokenHandler');
 
 // scaffolding
 const handler = {};
@@ -67,17 +68,26 @@ handler._users.post = (requestProperties, callback) => {
 handler._users.get = (requestProperties, callback) => {
     const phone = typeof(requestProperties.queryStringObject.phone) === 'string' && (requestProperties.queryStringObject.phone).trim().length > 0 ? requestProperties.queryStringObject.phone: false;
     if(phone){
-        data.read('users', phone, (err, u) =>{
-            const user = {...parseJSON(u)};
-            if(!err && u){
-                delete(user.password);
-                callback(200, user);
+        const token = typeof(requestProperties.headerStringObject.token) === 'string' ? requestProperties.headerStringObject.token: false;
+        tokenHandler._token.verify(token, phone, (tokenId)=>{
+            if(tokenId){
+                data.read('users', phone, (err, u) =>{
+                    const user = {...parseJSON(u)};
+                    if(!err && u){
+                        delete(user.password);
+                        callback(200, user);
+                    }else{
+                        callback(404, {
+                            error: "Requested user not found",
+                        });
+                    }
+                });
             }else{
-                callback(404, {
-                    error: "Requested user not found",
+                callback(504, {
+                    error: "Authentication  failed",
                 });
             }
-        });
+        }); 
     }else{
         callback(404, {
             error: "Requested user not found",
@@ -92,45 +102,55 @@ handler._users.put = (requestProperties, callback) => {
     const password = typeof(requestProperties.body.password) === 'string' && (requestProperties.body.password.trim().length > 0) ? requestProperties.body.password: false;
    
     if(phone){
-        data.read('users', phone, (err1, uData) => {
-            if(!err1 && uData){
-                const UserData = {... parseJSON(uData)};
-                
-                if(firstName || lastName || password){
-                    if(firstName){
-                        UserData.firstName = firstName;
-                    }
-                    if(lastName){
-                        UserData.lastName = lastName;
-                    }
-                    if(password){
-                        UserData.password = hash(password);
-                    }
-                    
-                    data.update('users', phone, UserData, (err2) => {
-                        if(!err2){
-                            callback(200, {
-                                message: "user updated successfully !."
-                            })
+        const token = typeof(requestProperties.headerStringObject.token) === 'string' ? requestProperties.headerStringObject.token: false;
+        
+        tokenHandler._token.verify(token, phone, (tokenId)=>{
+            if(tokenId){
+                data.read('users', phone, (err1, uData) => {
+                    if(!err1 && uData){
+                        const UserData = {... parseJSON(uData)};
+                        
+                        if(firstName || lastName || password){
+                            if(firstName){
+                                UserData.firstName = firstName;
+                            }
+                            if(lastName){
+                                UserData.lastName = lastName;
+                            }
+                            if(password){
+                                UserData.password = hash(password);
+                            }
+                            
+                            data.update('users', phone, UserData, (err2) => {
+                                if(!err2){
+                                    callback(200, {
+                                        message: "user updated successfully !."
+                                    })
+                                }else{
+                                    callback(500, {
+                                        error: err2,
+                                    })
+                                }
+                            });
+        
                         }else{
                             callback(500, {
-                                error: err2,
+                                error: "there was a error on server side"
                             })
                         }
-                    });
-
-                }else{
-                    callback(500, {
-                        error: "there was a error on server side"
-                    })
-                }
-
+        
+                    }else{
+                        callback(402, {
+                            error: "Requested user not found",
+                        });
+                    }
+                });
             }else{
-                callback(402, {
-                    error: "Requested user not found",
+                callback(504, {
+                    error: "Authentication  failed",
                 });
             }
-        })
+        });
     }else{
         callback(401, {
             error: "Requested user not found",
@@ -141,14 +161,24 @@ handler._users.put = (requestProperties, callback) => {
 handler._users.delete = (requestProperties, callback) => {
     const phone = typeof(requestProperties.queryStringObject.phone) === 'string' && (requestProperties.queryStringObject.phone).trim().length > 0 ? requestProperties.queryStringObject.phone: false;
     if(phone){
-        data.delete('users', phone, (err) => {
-            if(!err){
-                callback(200, {
-                    message:'file deleted successfull'
+        
+        const token = typeof(requestProperties.headerStringObject.token) === 'string' ? requestProperties.headerStringObject.token: false;
+        tokenHandler._token.verify(token, phone, (tokenId)=>{
+            if(tokenId){
+                data.delete('users', phone, (err) => {
+                    if(!err){
+                        callback(200, {
+                            message:'file deleted successfull'
+                        });
+                    }else{
+                        callback(500, {
+                            error: "there was a error on server side"
+                        })
+                    }
                 });
             }else{
-                callback(500, {
-                    error: "there was a error on server side"
+                callback(403, {
+                    error:"Authentication field"
                 })
             }
         })

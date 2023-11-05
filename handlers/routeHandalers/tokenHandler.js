@@ -111,6 +111,51 @@ handler._token.put = (requestProperties, callback) => {
 
 
 };
-handler._token.delete = (requestProperties, callback) => {};
+handler._token.delete = (requestProperties, callback) => {
+    const id = typeof(requestProperties.queryStringObject.id) === 'string' && (requestProperties.queryStringObject.id.length === 20) ? requestProperties.queryStringObject.id: false;
+    if(id){
+        data.read('tokens', id, (err)=>{
+            if(!err){
+                data.delete('tokens', id, (err2)=>{
+                    if(!err2){
+                        callback(200, {
+                            message: 'token deleted successful'
+                        });
+                    }else{
+                        callback(500, {
+                            error: 'there was a server  error'
+                        });
+                    }
+                });
+            }else{
+                callback(500, {
+                    error: 'there was a server  error'
+                });
+            }
+        });
+
+    }else{
+        callback(400, {
+            error: 'there was a request  error'
+        });
+    }
+};
+
+handler._token.verify = (id, phone, callback) => {
+    if(id && phone){
+        data.read('tokens', id, (err, tokenData) =>{
+            if(!err && tokenData){
+                // if(parseJSON(tokenData).phone === phone && parseJSON(tokenData).expires > Date.now()){
+                if(parseJSON(tokenData).phone === phone){
+                    callback(true);
+                }
+            }else{
+                callback(false);
+            }
+        });
+    }else{
+        callback(false);
+    }
+}
 
 module.exports  = handler;
