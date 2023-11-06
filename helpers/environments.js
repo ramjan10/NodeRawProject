@@ -9,16 +9,26 @@
 const environments = {};
 
 environments.staging = {
-    port: 4000,
+    port: 3000,
     envName: 'staging',
     secrateKey:'sdfsdfieuriwer',
     maxChecks: 5,
+    twilio:{
+        fromPhone: '+15005550006',
+        accountSid:'ACb32d411ad7fe886aac54c665d25e5c5d',
+        authtoken:'9455e3eb3109edc12e3d8c92768f7a67'
+    }
 };
 environments.production = {
     port: 5000,
     envName: 'production',
     secrateKey:'uryrueieudfhjd',
     maxChecks: 5,
+    twilio:{
+        fromPhone: '+15005550006',
+        accountSid:'ACb32d411ad7fe886aac54c665d25e5c5d',
+        authtoken:'9455e3eb3109edc12e3d8c92768f7a67'
+    }
 };
 
 // determine which environment pass

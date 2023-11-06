@@ -185,6 +185,70 @@ handler._check.put = (requestProperties, callback)=>{
         })
     }
 };
-handler._check.delete = (requestProperties, callback)=>{};
+handler._check.delete = (requestProperties, callback)=>{
+    const id = typeof(requestProperties.queryStringObject.id) === 'string' && (requestProperties.queryStringObject.id).trim().length === 20 ? requestProperties.queryStringObject.id: false;
+    if(id){
+        data.read('checks', id, (err1, checkData)=>{
+            if(!err1 && checkData){
+                const token  = typeof(requestProperties.headerStringObject.token) === 'string' ? requestProperties.headerStringObject.token: false;
+                tokenHandler._token.verify(token, parseJSON(checkData).userPhone, (tokenIsValid)=>{
+                    if(tokenIsValid){
+                        data.delete('checks', id, (err3)=>{
+                            if(!err3){
+                                data.read('users', parseJSON(checkData).userPhone, (err4, userData)=>{
+                                    let userObject = parseJSON(userData); 
+                                    if(!err4 && userData){
+                                        let userChekcs = typeof(userObject.checks) ==='object' && userObject.checks instanceof Array ? userObject.checks : false;
+                                        const checkPosition  = userChekcs.indexOf(id);
+                                        if(checkPosition > -1){
+                                            userChekcs.splice(checkPosition, 1);
+                                            userObject.checks =  userChekcs;
+                                            
+                                            data.update('users', parseJSON(checkData).userPhone, userObject,  (err5)=>{
+                                                if(!err5){
+                                                    callback(200, {
+                                                        message:'check delete successfull'
+                                                    });
+                                                }else{
+                                                    callback(500, {
+                                                        error: 'there was a server side error'
+                                                    });
+                                                }
+                                            })
+                                        }else{
+                                            callback(500, {
+                                                error: 'there was a server side error'
+                                            });
+                                        }
+                                    }else{
+                                        callback(403, {
+                                            error: 'user not found '
+                                        });
+                                    }
+                                })
+                            }else{
+                                callback(500, {
+                                    error: 'there was a server side error'
+                                });
+                            }
+                        })
+                    }else{
+                        callback(403, {
+                            error: 'Authentication faild'
+                        });
+                    }
+                })
+            }else{
+                callback(500, {
+                    error: 'there was a server side error'
+                });
+            }
+        });
+    }else{
+        callback(400, {
+            error: 'there was a request side error'
+        });
+    }
+};
 
 module.exports = handler;

@@ -3,27 +3,21 @@
  */
 
 // dependences
-const http = require('http');
-const data = require('./lib/data');
-const { handleRequest } = require('./helpers/handleReqRes');
-const environment = require('./helpers/environments');
+const server  = require('./lib/server');
+const worker = require('./lib/worker');
 
 // create an scafolding opject
 const app = {};
 
-// data.create('test', 'newfile', { name: 'Ramjan', email: 'ramjan@gmail.com' }, (err) => {
-//     console.log(err);
-// });
+app.init = () => {
+    //server 
+    server.init();
 
-// create server
-app.createServer = () => {
-    const server = http.createServer(app.handleRequest);
-    server.listen(environment.port, () => {
-        console.log(`Listening prot  ${environment.port}`);
-    });
-};
+    //worker
+    worker.init();
+}
 
-// create handle request response
-app.handleRequest = handleRequest;
+app.init();
 
-app.createServer();
+module.exports = app;
+
